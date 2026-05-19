@@ -1,0 +1,14 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+exclude = ["java-pusher", ".venv", "data", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "C4"]
+ignore = ["E501"]
+
