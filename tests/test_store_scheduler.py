@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from xlin_pusher.models import LearningCard, ScheduleState
 from xlin_pusher.scheduler import is_valid_push_time, should_push_now
-from xlin_pusher.store import CardStore
+from xlin_pusher.store import CardStore, compute_interval
 
 
 def make_card(
@@ -85,3 +85,9 @@ def test_should_push_once_per_day_at_configured_minute():
     state.last_push_date = "2026-05-20"
     assert not should_push_now(state, datetime(2026, 5, 20, 8, 15))
     assert not should_push_now(state, datetime(2026, 5, 21, 8, 14))
+
+
+def test_compute_interval_accepts_chinese_review_levels():
+    assert compute_interval("不会", 30, 3) == 1
+    assert compute_interval("模糊", 10, 3) == 5
+    assert compute_interval("掌握", 0, 2) == 7

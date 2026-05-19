@@ -1,21 +1,20 @@
 {
   "start_url": {
-    "description": "xiaolincoding crawl start URL",
+    "description": "小林 Coding 抓取入口地址",
     "type": "string",
     "default": "https://www.xiaolincoding.com/",
-    "hint": "Same-site article links discovered from this page are crawled."
+    "hint": "插件会从该页面和 sitemap 发现同站文章链接。"
   },
   "max_pages": {
-    "description": "Maximum pages to crawl per /xlin import",
+    "description": "每次 /xlin import 最多抓取页数",
     "type": "int",
     "default": 80,
-    "hint": "Increase for a broader local card database. Generated content is stored locally only."
+    "hint": "调大可导入更多内容。生成的完整题库只保存在本地，不提交到 Git。"
   },
   "request_timeout": {
-    "description": "HTTP request timeout in seconds",
+    "description": "HTTP 请求超时时间（秒）",
     "type": "int",
     "default": 30,
-    "hint": "Used for both page discovery and markdown fetches."
+    "hint": "用于页面发现、Markdown 代理抓取和 HTML 兜底抓取。"
   }
 }
-

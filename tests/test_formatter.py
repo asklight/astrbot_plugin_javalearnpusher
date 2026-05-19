@@ -26,9 +26,10 @@ def test_format_card_message_includes_source_and_content():
 
     message = format_card_message(card, max_content_length=200)
 
-    assert "Xiaolincoding Learning Card" in message
+    assert "小林 Coding 学习卡片" in message
+    assert "[网络]" in message
     assert "TCP" in message
     assert "What is the purpose" in message
     assert "It confirms both sides" in message
     assert "https://www.xiaolincoding.com/network/1_base/tcp.html" in message
-    assert "Images: 1" in message
+    assert "配图数量：1" in message

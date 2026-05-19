@@ -24,7 +24,7 @@ from xlin_pusher.store import CardStore
 PLUGIN_NAME = "astrbot_plugin_javalearnpusher"
 
 
-@register(PLUGIN_NAME, "asklight", "Xiaolincoding learning pusher", "1.0.0")
+@register(PLUGIN_NAME, "asklight", "小林 Coding 学习推送", "1.0.0")
 class XiaolincodingPusherPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig | None = None):
         super().__init__(context)
@@ -107,7 +107,7 @@ class XiaolincodingPusherPlugin(Star):
 
     @filter.command("xlin")
     async def xlin(self, event: AstrMessageEvent):
-        """Xiaolincoding learning pusher commands."""
+        """小林 Coding 学习推送命令。"""
         parts = event.message_str.strip().split()
         subcmd = parts[1].lower() if len(parts) > 1 else "status"
 
@@ -129,7 +129,7 @@ class XiaolincodingPusherPlugin(Star):
         if subcmd == "next":
             card = self.store.select_next_card(date.today())
             if not card:
-                yield event.plain_result("No cards found. Run /xlin import first.")
+                yield event.plain_result("题库为空，请先执行 /xlin import 导入内容。")
                 return
             yield event.plain_result(format_card_message(card))
             return
@@ -137,67 +137,67 @@ class XiaolincodingPusherPlugin(Star):
         if subcmd == "topic":
             keyword = " ".join(parts[2:]).strip()
             if not keyword:
-                yield event.plain_result("Usage: /xlin topic <keyword>")
+                yield event.plain_result("用法：/xlin topic <关键词>")
                 return
             card = self.store.find_topic_card(keyword)
             if not card:
-                yield event.plain_result(f"No card matched topic: {keyword}")
+                yield event.plain_result(f"没有找到匹配主题的卡片：{keyword}")
                 return
             yield event.plain_result(format_card_message(card))
             return
 
         if subcmd == "set":
             if len(parts) < 3 or not is_valid_push_time(parts[2]):
-                yield event.plain_result("Usage: /xlin set <HH:MM>")
+                yield event.plain_result("用法：/xlin set <HH:MM>，例如 /xlin set 09:00")
                 return
             state = self.store.load_schedule()
             state.enabled = True
             state.push_time = parts[2]
             state.target_session = event.unified_msg_origin
             self.store.save_schedule(state)
-            yield event.plain_result(
-                f"Daily push enabled at {state.push_time} for this conversation."
-            )
+            yield event.plain_result(f"已为当前会话启用每日 {state.push_time} 定时推送。")
             return
 
         if subcmd == "cancel":
             state = self.store.load_schedule()
             state.enabled = False
             self.store.save_schedule(state)
-            yield event.plain_result("Daily push disabled.")
+            yield event.plain_result("已关闭每日定时推送。")
             return
 
         if subcmd == "import":
-            yield event.plain_result("Starting xiaolincoding crawl. This may take a while.")
+            yield event.plain_result("开始抓取小林 Coding 内容，可能需要一些时间。")
             try:
                 count = await self._crawl_and_save()
             except Exception as exc:
                 logger.error(f"[xlin] import failed: {exc}")
-                yield event.plain_result(f"Import failed: {str(exc)[:200]}")
+                yield event.plain_result(f"导入失败：{str(exc)[:200]}")
                 return
-            yield event.plain_result(f"Imported {count} learning cards into local storage.")
+            yield event.plain_result(f"已导入 {count} 张学习卡片到本地题库。")
             return
 
         if subcmd == "rate":
             if len(parts) < 4:
-                yield event.plain_result("Usage: /xlin rate <card_id> <again|hard|good>")
+                yield event.plain_result(
+                    "用法：/xlin rate <卡片ID> <不会|模糊|掌握>，也兼容 again|hard|good"
+                )
                 return
             card = self.store.mark_reviewed(parts[2], parts[3], date.today())
             if not card:
-                yield event.plain_result(f"Card not found: {parts[2]}")
+                yield event.plain_result(f"没有找到卡片：{parts[2]}")
                 return
             yield event.plain_result(
-                f"Recorded {parts[3]} for {card.id}. Next review: {card.next_review}"
+                f"已记录 {card.id} 的复习结果：{parts[3]}。下次复习：{card.next_review}"
             )
             return
 
         yield event.plain_result(
-            "Usage:\n"
-            "/xlin status\n"
-            "/xlin import\n"
-            "/xlin next\n"
-            "/xlin topic <keyword>\n"
-            "/xlin set <HH:MM>\n"
-            "/xlin cancel\n"
-            "/xlin rate <card_id> <again|hard|good>"
+            "用法：\n"
+            "/xlin status - 查看状态\n"
+            "/xlin import - 抓取并导入小林 Coding 内容\n"
+            "/xlin next - 推送下一张学习卡片\n"
+            "/xlin topic <关键词> - 按主题查找卡片\n"
+            "/xlin set <HH:MM> - 设置当前会话每日定时推送\n"
+            "/xlin cancel - 关闭定时推送\n"
+            "/xlin rate <卡片ID> <不会|模糊|掌握> - 记录复习结果"
         )

@@ -105,9 +105,9 @@ def _is_due(value: str | None, today: date) -> bool:
 
 def compute_interval(level: str, current_interval: int, review_count: int) -> int:
     normalized = (level or "").strip().lower()
-    if normalized in {"again", "bad", "forgot"}:
+    if normalized in {"again", "bad", "forgot", "不会", "忘记"}:
         return 1
-    if normalized in {"hard", "fuzzy"}:
+    if normalized in {"hard", "fuzzy", "模糊", "困难"}:
         return max(3, current_interval // 2 if current_interval else 3)
     idx = min(max(review_count, 0), len(MASTER_STEPS) - 1)
     return MASTER_STEPS[idx]
