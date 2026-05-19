@@ -52,6 +52,8 @@ def format_status(
     push_time: str,
     target_session: str,
     last_push_date: str,
+    cards_path: str,
+    last_import_at: str,
 ) -> str:
     target = target_session or "未设置"
     enabled_text = "已启用" if enabled else "未启用"
@@ -64,5 +66,8 @@ def format_status(
             f"推送时间：{push_time}",
             f"推送目标：{target}",
             f"上次推送日期：{last_push_date or '从未推送'}",
+            f"上次导入：{last_import_at or '尚未导入'}",
+            f"本地题库：{cards_path}",
+            "数据模式：本地题库（推送时不重新抓取）",
         ]
     )

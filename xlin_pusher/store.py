@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from .models import LearningCard, ScheduleState
@@ -14,6 +14,7 @@ class CardStore:
         self.data_dir = Path(data_dir)
         self.cards_path = self.data_dir / "cards.json"
         self.schedule_path = self.data_dir / "schedule.json"
+        self.import_metadata_path = self.data_dir / "import_metadata.json"
 
     def ensure_data_dir(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
@@ -29,6 +30,23 @@ class CardStore:
         self.ensure_data_dir()
         with self.cards_path.open("w", encoding="utf-8") as file:
             json.dump([card.to_dict() for card in cards], file, ensure_ascii=False, indent=2)
+
+    def load_import_metadata(self) -> dict:
+        if not self.import_metadata_path.exists():
+            return {}
+        with self.import_metadata_path.open("r", encoding="utf-8") as file:
+            return json.load(file)
+
+    def save_import_metadata(self, *, card_count: int, source_url: str) -> None:
+        self.ensure_data_dir()
+        metadata = {
+            "last_import_at": datetime.now().isoformat(timespec="seconds"),
+            "card_count": card_count,
+            "source_url": source_url,
+            "cards_path": str(self.cards_path),
+        }
+        with self.import_metadata_path.open("w", encoding="utf-8") as file:
+            json.dump(metadata, file, ensure_ascii=False, indent=2)
 
     def load_schedule(self) -> ScheduleState:
         if not self.schedule_path.exists():

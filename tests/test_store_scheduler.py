@@ -30,6 +30,17 @@ def test_card_store_saves_and_loads_cards(tmp_path):
     assert [card.id for card in loaded] == ["a", "b"]
 
 
+def test_card_store_saves_import_metadata(tmp_path):
+    store = CardStore(tmp_path)
+    store.save_import_metadata(card_count=3, source_url="https://www.xiaolincoding.com/")
+
+    metadata = store.load_import_metadata()
+
+    assert metadata["card_count"] == 3
+    assert metadata["source_url"] == "https://www.xiaolincoding.com/"
+    assert metadata["last_import_at"]
+
+
 def test_card_store_selects_due_cards_before_future_cards(tmp_path):
     store = CardStore(tmp_path)
     store.save_cards(

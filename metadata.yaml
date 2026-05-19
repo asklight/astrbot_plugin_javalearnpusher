@@ -1,6 +1,6 @@
 name: astrbot_plugin_javalearnpusher
 display_name: 小林 Coding 学习推送
 desc: 抓取小林 Coding 内容到本地私有学习卡片题库，并通过 AstrBot 定时推送复习。
-version: v1.0.0
+version: v1.0.1
 author: asklight
 repo: https://github.com/asklight/astrbot_plugin_javalearnpusher

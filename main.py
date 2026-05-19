@@ -24,7 +24,7 @@ from xlin_pusher.store import CardStore
 PLUGIN_NAME = "astrbot_plugin_javalearnpusher"
 
 
-@register(PLUGIN_NAME, "asklight", "小林 Coding 学习推送", "1.0.0")
+@register(PLUGIN_NAME, "asklight", "小林 Coding 学习推送", "1.0.1")
 class XiaolincodingPusherPlugin(Star):
     def __init__(self, context: Context, config: AstrBotConfig | None = None):
         super().__init__(context)
@@ -103,6 +103,7 @@ class XiaolincodingPusherPlugin(Star):
             lambda: crawl_xiaolincoding(start_url=start_url, max_pages=max_pages, timeout=timeout),
         )
         self.store.save_cards(result.cards)
+        self.store.save_import_metadata(card_count=len(result.cards), source_url=start_url)
         return len(result.cards)
 
     @filter.command("xlin")
@@ -114,6 +115,7 @@ class XiaolincodingPusherPlugin(Star):
         if subcmd == "status":
             cards = self.store.load_cards()
             schedule = self.store.load_schedule()
+            import_metadata = self.store.load_import_metadata()
             yield event.plain_result(
                 format_status(
                     total_cards=len(cards),
@@ -122,6 +124,8 @@ class XiaolincodingPusherPlugin(Star):
                     push_time=schedule.push_time,
                     target_session=schedule.target_session,
                     last_push_date=schedule.last_push_date,
+                    cards_path=str(self.store.cards_path),
+                    last_import_at=str(import_metadata.get("last_import_at", "")),
                 )
             )
             return
@@ -129,7 +133,10 @@ class XiaolincodingPusherPlugin(Star):
         if subcmd == "next":
             card = self.store.select_next_card(date.today())
             if not card:
-                yield event.plain_result("题库为空，请先执行 /xlin import 导入内容。")
+                yield event.plain_result(
+                    "本地题库为空，请先执行 /xlin import 预先抓取并存储内容。"
+                    "推送只会读取本地题库，不会临时重新抓取。"
+                )
                 return
             yield event.plain_result(format_card_message(card))
             return
@@ -166,14 +173,20 @@ class XiaolincodingPusherPlugin(Star):
             return
 
         if subcmd == "import":
-            yield event.plain_result("开始抓取小林 Coding 内容，可能需要一些时间。")
+            yield event.plain_result(
+                "开始抓取小林 Coding 内容并写入本地题库，可能需要一些时间。"
+                "导入完成后，后续推送将直接读取本地题库，不会再次抓取。"
+            )
             try:
                 count = await self._crawl_and_save()
             except Exception as exc:
                 logger.error(f"[xlin] import failed: {exc}")
                 yield event.plain_result(f"导入失败：{str(exc)[:200]}")
                 return
-            yield event.plain_result(f"已导入 {count} 张学习卡片到本地题库。")
+            yield event.plain_result(
+                f"已导入 {count} 张学习卡片到本地题库。"
+                "之后的定时推送和 /xlin next 都会直接读取本地题库。"
+            )
             return
 
         if subcmd == "rate":
