@@ -1,0 +1,21 @@
+{
+  "start_url": {
+    "description": "xiaolincoding crawl start URL",
+    "type": "string",
+    "default": "https://www.xiaolincoding.com/",
+    "hint": "Same-site article links discovered from this page are crawled."
+  },
+  "max_pages": {
+    "description": "Maximum pages to crawl per /xlin import",
+    "type": "int",
+    "default": 80,
+    "hint": "Increase for a broader local card database. Generated content is stored locally only."
+  },
+  "request_timeout": {
+    "description": "HTTP request timeout in seconds",
+    "type": "int",
+    "default": 30,
+    "hint": "Used for both page discovery and markdown fetches."
+  }
+}
+

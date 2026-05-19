@@ -1,0 +1,7 @@
+name: astrbot_plugin_javalearnpusher
+display_name: Xiaolincoding Learning Pusher
+desc: Crawl xiaolincoding content into a local private card database and push cards through AstrBot.
+version: v1.0.0
+author: asklight
+repo: https://github.com/asklight/astrbot_plugin_javalearnpusher
+
