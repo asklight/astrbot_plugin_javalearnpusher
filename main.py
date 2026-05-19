@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import asyncio
+import sys
 from datetime import date, datetime
 from pathlib import Path
 from typing import Any
+
+PLUGIN_DIR = Path(__file__).resolve().parent
+if str(PLUGIN_DIR) not in sys.path:
+    sys.path.insert(0, str(PLUGIN_DIR))
 
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, MessageChain, filter

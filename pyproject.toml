@@ -12,3 +12,5 @@ exclude = ["java-pusher", ".venv", "data", "__pycache__"]
 select = ["F", "E", "W", "I", "UP", "C4"]
 ignore = ["E501"]
 
+[tool.ruff.lint.per-file-ignores]
+"main.py" = ["E402"]
