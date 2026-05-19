@@ -10,6 +10,16 @@ PLUGIN_DIR = Path(__file__).resolve().parent
 if str(PLUGIN_DIR) not in sys.path:
     sys.path.insert(0, str(PLUGIN_DIR))
 
+
+def _refresh_local_modules(package_name: str) -> None:
+    # AstrBot hot reload can keep old plugin-local modules in sys.modules.
+    for module_name in list(sys.modules):
+        if module_name == package_name or module_name.startswith(f"{package_name}."):
+            del sys.modules[module_name]
+
+
+_refresh_local_modules("xlin_pusher")
+
 from astrbot.api import AstrBotConfig, logger
 from astrbot.api.event import AstrMessageEvent, MessageChain, filter
 from astrbot.api.message_components import Plain

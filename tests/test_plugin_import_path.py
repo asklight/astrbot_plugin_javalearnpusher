@@ -4,16 +4,7 @@ import types
 from pathlib import Path
 
 
-def test_main_imports_local_package_when_loaded_without_plugin_dir_on_sys_path(monkeypatch):
-    plugin_dir = Path(__file__).resolve().parents[1]
-    monkeypatch.setattr(
-        sys,
-        "path",
-        [path for path in sys.path if Path(path or ".").resolve() != plugin_dir],
-    )
-
-    assert str(plugin_dir) not in sys.path
-
+def _install_astrbot_stubs(monkeypatch, plugin_dir: Path) -> None:
     astrbot = types.ModuleType("astrbot")
     api = types.ModuleType("astrbot.api")
     event = types.ModuleType("astrbot.api.event")
@@ -70,4 +61,37 @@ def test_main_imports_local_package_when_loaded_without_plugin_dir_on_sys_path(m
     monkeypatch.setitem(sys.modules, "astrbot.core.utils", utils)
     monkeypatch.setitem(sys.modules, "astrbot.core.utils.astrbot_path", astrbot_path)
 
+
+def test_main_imports_local_package_when_loaded_without_plugin_dir_on_sys_path(monkeypatch):
+    plugin_dir = Path(__file__).resolve().parents[1]
+    monkeypatch.setattr(
+        sys,
+        "path",
+        [path for path in sys.path if Path(path or ".").resolve() != plugin_dir],
+    )
+
+    assert str(plugin_dir) not in sys.path
+
+    _install_astrbot_stubs(monkeypatch, plugin_dir)
+
     runpy.run_path(str(plugin_dir / "main.py"), run_name="xlin_import_test")
+
+
+def test_main_refreshes_stale_cached_xlin_modules(monkeypatch):
+    plugin_dir = Path(__file__).resolve().parents[1]
+    _install_astrbot_stubs(monkeypatch, plugin_dir)
+
+    stale_package = types.ModuleType("xlin_pusher")
+    stale_store = types.ModuleType("xlin_pusher.store")
+
+    class StaleCardStore:
+        pass
+
+    stale_store.CardStore = StaleCardStore
+    monkeypatch.setitem(sys.modules, "xlin_pusher", stale_package)
+    monkeypatch.setitem(sys.modules, "xlin_pusher.store", stale_store)
+
+    namespace = runpy.run_path(str(plugin_dir / "main.py"), run_name="xlin_stale_cache_test")
+
+    assert namespace["CardStore"] is not StaleCardStore
+    assert hasattr(namespace["CardStore"], "load_import_metadata")
