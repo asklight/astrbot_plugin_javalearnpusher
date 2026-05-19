@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# Existing standalone service. Kept for reference but not part of this plugin repo.
+java-pusher/
+
+# Runtime and generated private crawl data.
+data/
+runtime/
+*.log
+
+# Local secrets and environment.
+.env
+.env.*
+!.env.example
+
